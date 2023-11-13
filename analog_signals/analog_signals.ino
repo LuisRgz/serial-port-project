@@ -1,16 +1,24 @@
-#include <DHT.h>
- 
-// Definimos el pin digital donde se conecta el sensor
-#define DHTPIN 3
-// Dependiendo del tipo de sensor
-#define DHTTYPE DHT11
- 
-// Inicializamos el sensor DHT11
-DHT dht(DHTPIN, DHTTYPE);
-const int ledPIN = 9;
-const int buttonPIN = 4;
+#include <Servo.h>
 
-int buttonState = 0;
+int pinA0 = A0;
+int pinA1 = A1;
+int pinA2 = A2;
+int pinA3 = A3;
+
+const int buttonJ = 3;
+const int buttonON = 4;
+const int buttonOFF = 5;
+
+int valorA0 = 0;
+int valorA1 = 0;
+int valorA2 = 0;
+int valorA3 = 0;
+int buttonONState = 0;
+int buttonOFFState = 0;
+int buttonJState = 0;
+
+const int ledPIN = 9;
+
 bool sendData = false;
 
 void setup() {
@@ -18,42 +26,46 @@ void setup() {
   Serial.begin(9600);
   // Se inicializan los pines de lectura/escritura
   pinMode(ledPIN , OUTPUT);
-  pinMode(buttonPIN , INPUT);
-  // Comenzamos el sensor DHT
-  dht.begin();
- 
+  pinMode(buttonON , INPUT);
+  pinMode(buttonOFF , INPUT);
+  pinMode(buttonJ, INPUT_PULLUP);
 }
  
 void loop() {
-  // Leemos la humedad relativa
-  float h = dht.readHumidity();
+  // Leer valores analógicos
+  valorA0 = analogRead ( pinA0);
+  valorA1 = analogRead ( pinA1);
+  valorA2 = analogRead ( pinA2);
+  valorA3 = analogRead ( pinA3);
 
-  // Leemos la temperatura en grados centígrados (por defecto)
-  float t = dht.readTemperature();
+  // Leer valores digitales
+  buttonONState = digitalRead(buttonON);
+  buttonOFFState = digitalRead(buttonOFF);
+  buttonJState = digitalRead(buttonJ);
 
-  // Leer botón
-  char action;
-  buttonState = digitalRead(buttonPIN);
-  if (buttonState == HIGH) {
+  char action='.';
+  if (buttonONState == HIGH) {
     action = 'A';
-  } else {
+  }
+  if (buttonOFFState == HIGH) {
     action = 'B';
   }
-
-  // Comprobamos si ha habido algún error en la lectura
-  if (isnan(h) || isnan(t)) {
-    Serial.println("Error obteniendo los datos del sensor DHT11");
-    return;
+  if (buttonJState == LOW) {
+    action = 'C';
   }
 
   // Validar si se envía información
   if (sendData)
   {
-    Serial.print(h);
-    Serial.print(" ");
-    Serial.print(t);
-    Serial.print(" ");
     Serial.print(action);
+    Serial.print(" ");
+    Serial.print(valorA0);
+    Serial.print(" ");
+    Serial.print(valorA1);
+    Serial.print(" ");
+    Serial.print(valorA2);
+    Serial.print(" ");
+    Serial.print(valorA3);
     Serial.print("\n");
   }
 
