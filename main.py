@@ -7,7 +7,7 @@ import serial
 import tk_tools
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 
-ser = serial.Serial("/dev/cu.usbserial-10", 9600)
+ser = serial.Serial("/dev/cu.usbserial-110", 9600)
 
 
 def add_to_buffer(buf, max_len, val):
