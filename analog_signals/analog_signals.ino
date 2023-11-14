@@ -1,59 +1,76 @@
-#include <DHT.h>
- 
-// Definimos el pin digital donde se conecta el sensor
-#define DHTPIN 3
-// Dependiendo del tipo de sensor
-#define DHTTYPE DHT11
- 
-// Inicializamos el sensor DHT11
-DHT dht(DHTPIN, DHTTYPE);
-const int ledPIN = 9;
-const int buttonPIN = 4;
+#include <Servo.h>
+// Configurar entradas
+const int analogPins[] = {A0, A1, A2, A3, A4};
 
-int buttonState = 0;
+const int ledButtonJ = 3;
+const int ledButtonON = 4;
+const int ledButtonOFF = 5;
+
+//Configurar salidas
+const int ledPIN = 9;
+
+// Constantes de funcinalidad
+const int analogSize = sizeof(analogPins)/sizeof(analogPins[0]);
+const char action1 = 'A';
+const char action2 = 'B';
+const char action3 = 'C';
+const char ledOn = 'T';
+const char ledOff = 'O';
+const char start = 'L';
+const char end = 'M';
+
+// variables de lectura de datos
+int values[analogSize];
+int buttonONState = 0;
+int buttonOFFState = 0;
+int buttonJState = 0;
+
+// variable de control de datos
 bool sendData = false;
 
 void setup() {
-  // Inicializamos comunicación serie
+  // Inicialización de comunicación Serial
   Serial.begin(9600);
   // Se inicializan los pines de lectura/escritura
   pinMode(ledPIN , OUTPUT);
-  pinMode(buttonPIN , INPUT);
-  // Comenzamos el sensor DHT
-  dht.begin();
- 
+  pinMode(ledButtonON , INPUT);
+  pinMode(ledButtonOFF , INPUT);
+  pinMode(ledButtonJ, INPUT_PULLUP);
 }
  
 void loop() {
-  // Leemos la humedad relativa
-  float h = dht.readHumidity();
+  // Leer valores analógicos
+  for (byte i = 0; i < analogSize; i++) {
+      values[i] = analogRead(analogPins[i]);
+    }
 
-  // Leemos la temperatura en grados centígrados (por defecto)
-  float t = dht.readTemperature();
 
-  // Leer botón
-  char action;
-  buttonState = digitalRead(buttonPIN);
-  if (buttonState == HIGH) {
-    action = 'A';
-  } else {
-    action = 'B';
+  // Leer valores digitales
+  buttonONState = digitalRead(ledButtonON);
+  buttonOFFState = digitalRead(ledButtonOFF);
+  buttonJState = digitalRead(ledButtonJ);
+
+  // Define si alguna acción fue activada
+  char action='.';
+  if (buttonONState == HIGH) {
+    action = action1;
   }
-
-  // Comprobamos si ha habido algún error en la lectura
-  if (isnan(h) || isnan(t)) {
-    Serial.println("Error obteniendo los datos del sensor DHT11");
-    return;
+  if (buttonOFFState == HIGH) {
+    action = action2;
+  }
+  if (buttonJState == LOW) {
+    action = action3;
   }
 
   // Validar si se envía información
   if (sendData)
   {
-    Serial.print(h);
-    Serial.print(" ");
-    Serial.print(t);
-    Serial.print(" ");
+    //Envía la información separada por " " (espacio en blanco)
     Serial.print(action);
+    for (byte i = 0; i < analogSize; i++) {
+      Serial.print(" ");
+      Serial.print(values[i]);
+    }
     Serial.print("\n");
   }
 
@@ -61,21 +78,21 @@ void loop() {
   char option = Serial.read();
 
   // Control de led
-  if (option == 'A')
+  if (option == ledOn)
   {
     digitalWrite(ledPIN , HIGH);
   }
-  if (option == 'B')
+  if (option == ledOff)
   {
     digitalWrite(ledPIN , LOW);
   }
 
   // Control de envío datos
-  if (option == 'M')
+  if (option == end)
   {
     sendData=false;
   } 
-  if (option == 'L')
+  if (option == start)
   {
     sendData=true;
   } 
