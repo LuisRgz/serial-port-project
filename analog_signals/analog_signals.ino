@@ -2,9 +2,9 @@
 // Configurar entradas
 const int analogPins[] = {A0, A1, A2, A3, A4};
 
-const int ledButtonJ = 3;
-const int ledButtonON = 4;
-const int ledButtonOFF = 5;
+const int pushButtonJ = 3;
+const int pushButton1 = 4;
+const int pushButton2 = 5;
 
 //Configurar salidas
 const int ledPIN = 9;
@@ -21,9 +21,9 @@ const char end = 'M';
 
 // variables de lectura de datos
 int values[analogSize];
-int buttonONState = 0;
-int buttonOFFState = 0;
-int buttonJState = 0;
+int pushButton1State = 0;
+int pushButton2State = 0;
+int pushButtonJState = 0;
 
 // variable de control de datos
 bool sendData = false;
@@ -33,9 +33,9 @@ void setup() {
   Serial.begin(9600);
   // Se inicializan los pines de lectura/escritura
   pinMode(ledPIN , OUTPUT);
-  pinMode(ledButtonON , INPUT);
-  pinMode(ledButtonOFF , INPUT);
-  pinMode(ledButtonJ, INPUT_PULLUP);
+  pinMode(pushButton1 , INPUT);
+  pinMode(pushButton2 , INPUT);
+  pinMode(pushButtonJ, INPUT_PULLUP);
 }
  
 void loop() {
@@ -44,21 +44,20 @@ void loop() {
       values[i] = analogRead(analogPins[i]);
     }
 
-
   // Leer valores digitales
-  buttonONState = digitalRead(ledButtonON);
-  buttonOFFState = digitalRead(ledButtonOFF);
-  buttonJState = digitalRead(ledButtonJ);
+  pushButton1State = digitalRead(pushButton1);
+  pushButton2State = digitalRead(pushButton2);
+  pushButtonJState = digitalRead(pushButtonJ);
 
   // Define si alguna acción fue activada
   char action='.';
-  if (buttonONState == HIGH) {
+  if (pushButton1State == HIGH) {
     action = action1;
   }
-  if (buttonOFFState == HIGH) {
+  if (pushButton2State == HIGH) {
     action = action2;
   }
-  if (buttonJState == LOW) {
+  if (pushButtonJState == LOW) {
     action = action3;
   }
 
